@@ -162,15 +162,13 @@ check_saml_signature = (xml, certificate, cb) ->
 
   signatures = xmlcrypto.xpath(doc, ".//*[local-name(.)='Signature' and namespace-uri(.)='http://www.w3.org/2000/09/xmldsig#']")
   return false unless signatures.length
+  signature = signatures[0]
 
   sig = new xmlcrypto.SignedXml()
   sig.keyInfoProvider = getKey: -> format_pem(certificate, 'CERTIFICATE')
 
-  for signature in signatures
-    sig.loadSignature signature.toString()
-    return false unless sig.checkSignature(xml)
-
-  return true
+  sig.loadSignature signature.toString()
+  return sig.checkSignature(xml)
 
 # Takes in an xml @dom containing a SAML Status and returns true if at least one status is Success.
 check_status_success = (dom) ->
